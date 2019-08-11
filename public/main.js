@@ -29,6 +29,7 @@ newGameButton.addEventListener('click', function() {
   newGameButton.style.display = 'none'
   hitButton.style.display = 'inline'
   stayButton.style.display = 'inline'
+  checkScore()
   showStatus()
 })
 
@@ -93,9 +94,7 @@ function createDeck() {
 function shuffleDeck(deck) {
   let myDeck = []
   for (i = 0; i < 52; i++) {
-    // empty array
     let random = Math.floor(Math.random() * (deck.length - 0)) + 0
-    //console.log(random,deckOfCards.length);
     tmpArray = deck[random]
     myDeck.push(tmpArray)
     deck.splice(random, 1)
@@ -104,49 +103,21 @@ function shuffleDeck(deck) {
 }
 
 hitButton.addEventListener('click', function() {
+  checkScore()
   playerCards.push(getNextCard())
-  checkForEndOfGame()
+  checkScore()
   showStatus()
 })
 
 stayButton.addEventListener('click', function() {
-  alert(dealerScore)
+  playerStays = true
+  console.log(dealerScore)
   while (dealerScore < 18) {
     dealerCards.push(getNextCard())
-    alert(dealerScore)
-    checkForEndOfGame()
-    showStatus()
+    console.log(dealerScore)
+    checkScore()
   }
 })
-
-function checkForEndOfGame() {
-  updateScores()
-
-  if (gameOver) {
-    while (
-      dealerScore < playerScore &&
-      playerScore <= 21 &&
-      dealerScore <= 21
-    ) {
-      //dealerScore.push(getNextCard())
-      updateScores()
-    }
-  }
-
-  if (playerScore > 21) {
-    playerWon = false
-    gameOver = true
-  } else if (dealerScore > 21) {
-    playerWon = true
-    gameOver = true
-  } else if (gameOver) {
-    if (playerScore > dealerScore) {
-      playerWon = true
-    } else {
-      playerWon = false
-    }
-  }
-}
 
 function showStatus() {
   if (!gameStarted) {
@@ -154,45 +125,18 @@ function showStatus() {
     return
   }
 
-  let dealerCardString = ''
-  for (let i = 0; i < dealerCards.length; i++) {
-    dealerCardString += dealerCards[i][2] + ' of ' + dealerCards[i][1] + '\n'
-  }
   let playerCardString = ''
   for (let i = 0; i < playerCards.length; i++) {
     playerCardString += playerCards[i][2] + ' of ' + playerCards[i][1] + '\n'
   }
-
-  updateScores()
-
-  /*textArea.innerText =
-    'Dealer has:\n' +
-    dealerCardString +
-    '(score: ' +
-    dealerScore +        
-    ')\n\n' +
-     */
   textArea.innerText =
     'Player has:\n' + playerCardString + '(score: ' + playerScore + ')\n\n'
-
-  if (gameOver) {
-    if (playerWon) {
-      textArea.innerText += 'YOU WIN!'
-    } else {
-      textArea.innerText += 'DEALER WINS'
-    }
-    newGameButton.style.display = 'inline'
-    hitButton.style.display = 'none'
-    stayButton.style.display = 'none'
-  }
 }
 
 function getScore(cardArray) {
   let score = 0
-  let hasAce = false
   for (let i = 0; i < cardArray.length; i++) {
     score += cardArray[i][3]
-    if (cardArray[i][2]) 
   }
   return score
 }
@@ -206,13 +150,53 @@ function getNextCard() {
   return deck.shift()
 }
 
-function checkScores() {
+function checkScore() {
   updateScores()
-  if (playerScore == 21)
-  {
+  if (playerScore == 21 && gameOver == false && playerStays == false) {
+    playerWon = true
     gameOver = true
     showStatus()
-
+    endOfGame()
+    return
+    //End Game
   }
+  if (playerScore > 21 && gameOver == false && playerStays == false) {
+    playerWon = false
+    gameOver = true
+    showStatus()
+    endOfGame()
+    return
+  }
+  if (dealerScore > 21) {
+    playerWon = true
+    gameOver = true
+    endOfGame()
+    return
+  }
+  if (dealerScore > playerScore) {
+    playerWon = false
+  } else {
+    playerWon = true
+  }
+  gameOver = true
+  endOfGame()
+}
 
+function endOfGame() {
+  let dealerCardString = ''
+  for (let i = 0; i < dealerCards.length; i++) {
+    dealerCardString += dealerCards[i][2] + ' of ' + dealerCards[i][1] + '\n'
+  }
+  textArea.innerText +=
+    'Dealer has:\n' + dealerCardString + '(score: ' + dealerScore + ')\n\n'
+  if (playerWon) {
+    textArea.innerText += 'YOU WIN!'
+  } else {
+    textArea.innerText += 'DEALER WINS'
+  }
+  newGameButton.style.display = 'inline'
+  hitButton.style.display = 'none'
+  stayButton.style.display = 'none'
+  console.log(textArea.innerText)
+  return
 }
