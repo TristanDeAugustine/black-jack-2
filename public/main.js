@@ -17,6 +17,7 @@ let gameStart = false,
   deck = []
 
 newGameButton.addEventListener('click', function() {
+  textArea.innerText = ''
   gameStarted = true
   gameOver = false
   playerWon = false
@@ -26,6 +27,9 @@ newGameButton.addEventListener('click', function() {
   deck = shuffleDeck(deck)
   dealerCards = [getNextCard(), getNextCard()]
   playerCards = [getNextCard(), getNextCard()]
+  show_image('playerDiv', '/images/' + playerCards[0][4])
+  show_image('playerDiv', '/images/' + playerCards[1][4])
+
   newGameButton.style.display = 'none'
   hitButton.style.display = 'inline'
   stayButton.style.display = 'inline'
@@ -103,7 +107,6 @@ function shuffleDeck(deck) {
 }
 
 hitButton.addEventListener('click', function() {
-  checkScore()
   playerCards.push(getNextCard())
   checkScore()
   showStatus()
@@ -111,15 +114,17 @@ hitButton.addEventListener('click', function() {
 
 stayButton.addEventListener('click', function() {
   playerStays = true
-  console.log(dealerScore)
-  while (dealerScore < 18) {
+  while (dealerScore < 18 && dealerScore !== playerScore) {
     dealerCards.push(getNextCard())
     console.log(dealerScore)
     checkScore()
+    if (dealerScore > 21 || dealerScore == playerScore) playerWon = true
   }
+  endOfGame()
 })
 
 function showStatus() {
+  textArea.innerText = ''
   if (!gameStarted) {
     textArea.innerText = 'Welcome to Blackjack!'
     return
@@ -127,10 +132,12 @@ function showStatus() {
 
   let playerCardString = ''
   for (let i = 0; i < playerCards.length; i++) {
-    playerCardString += playerCards[i][2] + ' of ' + playerCards[i][1] + '\n'
+    //playerCardString += playerCards[i][2] + ' of ' + playerCards[i][1] + '\n'
   }
-  textArea.innerText =
+  document.getElementById('text-area').innerText =
     'Player has:\n' + playerCardString + '(score: ' + playerScore + ')\n\n'
+  //textArea.innerText +=
+  // 'Player has:\n' + playerCardString + '(score: ' + playerScore + ')\n\n'
 }
 
 function getScore(cardArray) {
@@ -152,44 +159,38 @@ function getNextCard() {
 
 function checkScore() {
   updateScores()
-  if (playerScore == 21 && gameOver == false && playerStays == false) {
+  if (playerScore == 21) {
     playerWon = true
-    gameOver = true
     showStatus()
     endOfGame()
-    return
     //End Game
   }
-  if (playerScore > 21 && gameOver == false && playerStays == false) {
+
+  if (playerScore > 21) {
     playerWon = false
-    gameOver = true
     showStatus()
     endOfGame()
-    return
   }
+
   if (dealerScore > 21) {
     playerWon = true
-    gameOver = true
+    showStatus()
     endOfGame()
-    return
   }
-  if (dealerScore > playerScore) {
-    playerWon = false
-  } else {
-    playerWon = true
-  }
-  gameOver = true
-  endOfGame()
+  return
 }
 
 function endOfGame() {
+  console.log('Got to end of game')
+  updateScores()
   let dealerCardString = ''
   for (let i = 0; i < dealerCards.length; i++) {
     dealerCardString += dealerCards[i][2] + ' of ' + dealerCards[i][1] + '\n'
   }
+
   textArea.innerText +=
     'Dealer has:\n' + dealerCardString + '(score: ' + dealerScore + ')\n\n'
-  if (playerWon) {
+  if ((playerWon == true || playerScore > dealerScore) && playerScore < 22) {
     textArea.innerText += 'YOU WIN!'
   } else {
     textArea.innerText += 'DEALER WINS'
@@ -198,5 +199,12 @@ function endOfGame() {
   hitButton.style.display = 'none'
   stayButton.style.display = 'none'
   console.log(textArea.innerText)
-  return
+}
+
+function show_image(targetdiv, src) {
+  var img = document.createElement('img')
+  img.src = src
+  img.width = 100
+  img.height = 200
+  document.getElementById(targetdiv).appendChild(img)
 }
