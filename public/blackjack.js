@@ -13,18 +13,15 @@ let gameStart = false,
   playerCards = [],
   dealerScore = 0,
   playerScore = 0,
-  playerStays = false,
+  playerStay = false,
   deck = []
 
 newGameButton.addEventListener('click', function() {
-  var list = document.getElementById('playerDiv')
-  while (list.hasChildNodes()) {
-    list.removeChild(list.firstChild)
-  }
   gameStarted = true
   gameOver = false
   playerWon = false
-  playerStays = false
+  playerStay = false
+  clearCards()
 
   deck = createDeck()
   deck = shuffleDeck(deck)
@@ -39,7 +36,6 @@ newGameButton.addEventListener('click', function() {
   hitButton.style.display = 'inline'
   stayButton.style.display = 'inline'
   checkScore()
-  showStatus()
 })
 
 function createDeck() {
@@ -116,35 +112,24 @@ hitButton.addEventListener('click', function() {
   let nextCardImg = '/images/' + playerCards[playerCards.length - 1][4]
   show_image('playerDiv', nextCardImg)
   checkScore()
-  showStatus()
 })
 
 stayButton.addEventListener('click', function() {
-  playerStays = true
+  playerStay = true
+  clearCards()
+  show_image('dealerDiv', '/images/' + dealerCards[0][4])
+  show_image('dealerDiv', '/images/' + dealerCards[1][4])
+  checkScore()
   while (dealerScore < 18 && dealerScore !== playerScore) {
     dealerCards.push(getNextCard())
+    let nextCardImg = '/images/' + dealerCards[dealerCards.length - 1][4]
+    show_image('dealerDiv', nextCardImg)
     console.log(dealerScore)
     checkScore()
     if (dealerScore > 21 || dealerScore == playerScore) playerWon = true
   }
   endOfGame()
 })
-
-function showStatus() {
-  /* if (!gameStarted) {
-    textArea.innerText = 'Welcome to Blackjack!'
-    return
-  }*/
-  /*
-  let playerCardString = ''
-  for (let i = 0; i < playerCards.length; i++) {
-    //playerCardString += playerCards[i][2] + ' of ' + playerCards[i][1] + '\n'
-  }
-  document.getElementById('text-area').innerText = 'Player has:\n' + playerCardString + '(score: ' + playerScore + ')\n\n'
-  //textArea.innerText +=
-   // 'Player has:\n' + playerCardString + '(score: ' + playerScore + ')\n\n'
-   */
-}
 
 function getScore(cardArray) {
   let score = 0
@@ -156,7 +141,13 @@ function getScore(cardArray) {
 
 function updateScores() {
   dealerScore = getScore(dealerCards)
+  if (playerStay == true) {
+    document.getElementById('dealerScore').innerText =
+      'Dealer Score = ' + dealerScore
+  }
   playerScore = getScore(playerCards)
+  document.getElementById('playerScore').innerText =
+    'Player Score = ' + playerScore
 }
 
 function getNextCard() {
@@ -167,49 +158,59 @@ function checkScore() {
   updateScores()
   if (playerScore == 21) {
     playerWon = true
-    showStatus()
     endOfGame()
     //End Game
   }
 
   if (playerScore > 21) {
     playerWon = false
-    showStatus()
     endOfGame()
   }
 
   if (dealerScore > 21) {
     playerWon = true
-    showStatus()
     endOfGame()
   }
-  return
+  console.log(playerScore, dealerScore)
 }
 
 function endOfGame() {
   console.log('Got to end of game')
   updateScores()
+  playerScore = getScore(playerCards)
+  if (playerWon == true) {
+    document.getElementById('playerScore').innerText =
+      'Player Score = ' + playerScore + ' ...You Won!'
+  } else {
+    document.getElementById('dealerScore').innerText =
+      'Dealer Score = ' + dealerScore + ' ...Dealer Won!'
+  }
   let dealerCardString = ''
   for (let i = 0; i < dealerCards.length; i++) {
     dealerCardString += dealerCards[i][2] + ' of ' + dealerCards[i][1] + '\n'
   }
-
-  /*textArea.innerText +='Dealer has:\n' +dealerCardString +'(score: ' +dealerScore +')\n\n'
-    if ((playerWon == true || playerScore > dealerScore) && playerScore<22) {
-      textArea.innerText += 'YOU WIN!'
-    } else {
-      textArea.innerText += 'DEALER WINS'
-    }*/
   newGameButton.style.display = 'inline'
   hitButton.style.display = 'none'
   stayButton.style.display = 'none'
-  //console.log(textArea.innerText)
 }
 
 function show_image(targetdiv, src) {
   var img = document.createElement('img')
   img.src = src
   img.width = 100
-  img.height = 200
+  img.height = 150
   document.getElementById(targetdiv).appendChild(img)
+}
+function clearCards() {
+  document.getElementById('dealerScore').innerText = ''
+  if (playerStay == false) {
+    let list = document.getElementById('playerDiv')
+    while (list.hasChildNodes()) {
+      list.removeChild(list.firstChild)
+    }
+  }
+  let list = document.getElementById('dealerDiv')
+  while (list.hasChildNodes()) {
+    list.removeChild(list.firstChild)
+  }
 }
