@@ -1,4 +1,3 @@
-let textArea = document.getElementById('text-area')
 let newGameButton = document.getElementById('new-game-button')
 let hitButton = document.getElementById('hit-button')
 let stayButton = document.getElementById('stay-button')
@@ -6,9 +5,9 @@ let stayButton = document.getElementById('stay-button')
 hitButton.style.display = 'none'
 stayButton.style.display = 'none'
 
-let gameStart = false,
+let gameStarted = false,
   gameOver = false,
-  playWon = false,
+  playerWon = false,
   dealerCards = [],
   playerCards = [],
   dealerScore = 0,
@@ -17,10 +16,10 @@ let gameStart = false,
   deck = []
 
 newGameButton.addEventListener('click', function() {
-  gameStarted = true
-  gameOver = false
-  playerWon = false
-  playerStay = false
+   gameStarted = true
+   gameOver = false
+   playerWon = false
+   playerStay = false
   clearCards()
 
   deck = createDeck()
@@ -39,7 +38,7 @@ newGameButton.addEventListener('click', function() {
 })
 
 function createDeck() {
-  deckOfCards = [
+  let deckOfCards = [
     [1, 'Clubs', 'Ten', 10, '10_of_clubs.svg'],
     [2, 'Diamonds', 'Ten', 10, '10_of_diamonds.svg'],
     [3, 'Hearts', 'Ten', 10, '10_of_hearts.svg'],
@@ -98,9 +97,9 @@ function createDeck() {
 }
 function shuffleDeck(deck) {
   let myDeck = []
-  for (i = 0; i < 52; i++) {
+  for (let i = 0; i < 52; i++) {
     let random = Math.floor(Math.random() * (deck.length - 0)) + 0
-    tmpArray = deck[random]
+    let tmpArray = deck[random]
     myDeck.push(tmpArray)
     deck.splice(random, 1)
   }
@@ -120,7 +119,7 @@ stayButton.addEventListener('click', function() {
   show_image('dealerDiv', '/images/' + dealerCards[0][4])
   show_image('dealerDiv', '/images/' + dealerCards[1][4])
   checkScore()
-  while (dealerScore < 18 && dealerScore !== playerScore) {
+  while (dealerScore < 18) {
     dealerCards.push(getNextCard())
     let nextCardImg = '/images/' + dealerCards[dealerCards.length - 1][4]
     show_image('dealerDiv', nextCardImg)
@@ -171,6 +170,7 @@ function checkScore() {
     playerWon = true
     endOfGame()
   }
+
   console.log(playerScore, dealerScore)
 }
 
